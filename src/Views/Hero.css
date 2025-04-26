@@ -1,0 +1,226 @@
+/* Hero.css */
+
+.hero-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background-color: #fefcf9;
+  position: relative;
+}
+
+.hero-left, .hero-right {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.hero-left {
+  padding-top: 0;
+  justify-content: center;
+  position: relative;
+  height: 100vh;
+  overflow: visible;
+}
+
+.hero-right {
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 100vh;
+}
+
+.hero-logo {
+  width: 115px;
+  position: relative;
+  top: 35px;
+  z-index: 2;
+  display: block;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 500;
+  text-align: center;
+  color: #1c1c1c;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  text-align: center;
+  color: #5f5f5f;
+  margin-bottom: 2rem;
+}
+
+.hero-auth-box {
+  background-color: #faf9f5;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-google-btn, .hero-email-btn {
+  width: 100%;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.hero-google-btn:hover {
+  background-color: #f5f4ed;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.hero-or {
+  font-size: 1rem;
+  color: #9b9b9b;
+  margin-top: 7px;
+  margin-bottom: 7px;
+}
+
+.hero-input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+.hero-disclaimer {
+  font-size: 0.75rem;
+  color: #8e8e8e;
+  text-align: center;
+}
+
+.hero-link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.hero-center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+}
+
+.hero-learn-btn {
+  margin-top: auto;
+  margin-bottom: 50px;
+  background-color: #f5f4ed;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid #d6d3ce;
+  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #7a7a7a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-learn-btn:hover {
+  border-color: #4b4b4b;
+  color: #4b4b4b;
+  transform: translateY(-2px);
+}
+
+.hero-slideshow-box {
+  background-color: #f5f4ed;
+  border-radius: 2rem;
+  width: 90%;
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  box-shadow: none;
+  min-height: 0;
+  height: auto;
+}
+
+.hero-slide-image {
+  width: 810px;
+  height: 600px;
+  object-fit: contain;
+  border-radius: 1rem;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .hero-slide-image {
+    width: 98vw;
+    height: 72vw;
+    max-width: 810px;
+    max-height: 600px;
+  }
+}
+
+.hero-dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 30px;
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #d6d3ce;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hero-dot.active {
+  background-color: #4b4b4b;
+}
+
+.hero-email-btn {
+  background-color: #000000;
+  color: #FFFFFF;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+}
+
+.hero-email-btn:hover {
+  transform: scale(1.07);
+  background-color: #000000;
+  color: #FFFFFF;
+}
