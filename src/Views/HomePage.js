@@ -8,6 +8,9 @@ const HomePage = () => {
     return (
         <Hero />
     );
+    return (
+        <Hero />
+    );
 };
 
 export default HomePage;
