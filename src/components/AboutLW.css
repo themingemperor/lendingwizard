@@ -1,0 +1,132 @@
+.about-lw-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 0;
+}
+
+.about-lw-header {
+    text-align: center;
+    max-width: 800px;
+    margin-bottom: 60px;
+    padding: 0 20px;
+}
+
+.about-lw-header h1 {
+    font-size: 48px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #1a1a1a;
+}
+
+.about-lw-header .about-lw-subtitle {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #4a4a4a;
+}
+
+.about-lw-content {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    gap: 60px;
+    padding: 0 20px;
+}
+
+.about-lw-left, .about-lw-right {
+    flex: 1;
+    width: 50%;
+}
+
+.about-lw-video {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.dropdown-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-item {
+    position: relative;
+}
+
+.dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dropdown-header:hover h3 {
+    color: #000000;
+}
+
+.dropdown-header h3 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+    color: #666666;
+    transition: color 0.3s ease;
+}
+
+.dropdown-header.active h3 {
+    color: #000000;
+}
+
+.dropdown-icon {
+    font-size: 24px;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+.dropdown-header.active .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.dropdown-content.active {
+    max-height: 200px;
+}
+
+.dropdown-content p {
+    padding: 20px 0;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4a4a4a;
+    text-align: left;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .about-lw-content {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .about-lw-left, .about-lw-right {
+        width: 100%;
+    }
+
+    .about-lw-header h1 {
+        font-size: 36px;
+    }
+}

@@ -1,0 +1,159 @@
+.price-section {
+    padding: 0;
+}
+
+.price-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.price-container h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    color: #000000;
+}
+
+.tab-pill-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.tab-container {
+    background-color: #f5f5f5;
+    border-radius: 50px;
+    padding: 2px;
+    display: inline-flex;
+    gap: 2px;
+}
+
+.tab {
+    padding: 8px 20px;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    color: #666;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+}
+
+.tab.active {
+    color: #000;
+    background-color: #ffffff;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.price-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-header {
+    margin-bottom: 24px;
+}
+
+.card-header h3 {
+    font-size: 1.5rem;
+    color: #000000;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    text-align: left;
+}
+
+.plan-description {
+    color: #333;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: #000000;
+    font-size: 0.95rem;
+}
+
+.feature-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.price-section {
+    margin-top: 12px;
+    text-align: left;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.billing-period {
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.pricing-footer {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 40px;
+}
+
+.pricing-footer p {
+    margin: 4px 0;
+}
+
+.research-note {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .price-container {
+        padding: 0 15px;
+    }
+
+    .cards-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .price-card {
+        width: 100%;
+        max-width: 400px;
+    }
+}
