@@ -247,9 +247,18 @@
     align-items: center;
     padding: 0 20px;
     box-sizing: border-box;
+    padding-top: 0px;
   }
 
-  .hero-left, .hero-right {
+  .hero-logo {
+    top: 0px;
+  }
+
+  .hero-learn-btn {
+    margin-top: 40px;
+  }
+
+  .hero-left {
     width: 100%;
     max-width: 100%;
     height: auto;
@@ -258,6 +267,14 @@
     box-sizing: border-box;
   }
 
+  .hero-right {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    box-sizing: border-box;
+    margin-top: -50px !important;
+  }
   .hero-slideshow-box {
     position: relative;
     top: 0;
