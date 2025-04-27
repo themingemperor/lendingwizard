@@ -10,13 +10,13 @@ import FooterLW from '../components/FooterLW';
 
 const HomePage = () => {
     return (
-        <>
+        <div className="main-container">
             <Hero />
             <AboutLW />
             <PriceLW />
             <FAQLW />
             <FooterLW />
-        </>
+        </div>
     );
 };
 
