@@ -69,6 +69,13 @@
   align-items: center;
 }
 
+.hero-auth-box form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .hero-google-btn, .hero-email-btn {
   width: 100%;
   background-color: white;
@@ -111,8 +118,8 @@
   box-sizing: border-box;
 }
 
-.hero-disclaimer {
-  font-size: 0.75rem;
+.hero-signin-link {
+  font-size: 0.9rem;
   color: #8e8e8e;
   text-align: center;
 }
@@ -323,8 +330,8 @@
     font-size: 0.9rem;
   }
 
-  .hero-disclaimer {
-    font-size: 0.7rem;
+  .hero-signin-link {
+    font-size: 0.85rem;
   }
 
   .hero-slide-image {
@@ -349,4 +356,11 @@
   .hero-slide-image {
     max-height: 250px;
   }
+}
+
+.error-message {
+    color: #ff0000;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-align: center;
 }
