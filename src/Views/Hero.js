@@ -23,6 +23,14 @@ const Hero = () => {
     setCurrentSlide(index);
   };
 
+  const handleLearnMoreClick = (e) => {
+    e.preventDefault();
+    const element = document.getElementById('meet-lending-wizard');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', duration: 500 });
+    }
+  };
+
   return (
     <section className='hero-container'>
       <div className='hero-left'>
@@ -43,7 +51,7 @@ const Hero = () => {
             </p>
           </div>
         </div>
-        <button className='hero-learn-btn'>Learn more ↓</button>
+        <button className='hero-learn-btn' onClick={handleLearnMoreClick}>Learn more ↓</button>
       </div>
 
       <div className='hero-right'>

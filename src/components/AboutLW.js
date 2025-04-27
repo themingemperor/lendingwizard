@@ -30,7 +30,7 @@ const AboutLW = () => {
     return (
         <div className="about-lw-container">
             <div className="about-lw-header">
-                <h1>Meet Lending Wizard</h1>
+                <h1 id="meet-lending-wizard">Meet Lending Wizard</h1>
                 <p className="about-lw-subtitle">
                     Lending Wizard is a next generation AI assistant built by Veigar and trained to 
                     be safe, accurate, and secure to help you do your best work.

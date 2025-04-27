@@ -140,14 +140,14 @@
   border-radius: 2rem;
   font-size: 1rem;
   font-weight: 600;
-  color: #7a7a7a;
+  color: #7a7a7a !important;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .hero-learn-btn:hover {
   border-color: #4b4b4b;
-  color: #4b4b4b;
+  color: #4b4b4b !important;
   transform: translateY(-2px);
 }
 
