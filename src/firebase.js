@@ -1,7 +1,7 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -12,9 +12,31 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_APP_ID,
     measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
-
+//Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
-export { db, auth };
+// Initialize Firebase Authentication
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+// Configure Google provider
+googleProvider.setCustomParameters({
+    prompt: 'select_account'
+});
+
+// Configure email link settings
+const actionCodeSettings = {
+    url: `${window.location.origin}/password-setup`,
+    handleCodeInApp: true,
+};
+
+export { 
+    db, 
+    auth, 
+    googleProvider, 
+    sendSignInLinkToEmail, 
+    isSignInWithEmailLink, 
+    signInWithEmailLink,
+    actionCodeSettings 
+};

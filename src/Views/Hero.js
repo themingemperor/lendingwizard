@@ -1,4 +1,7 @@
 import React, {useEffect, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { auth, sendSignInLinkToEmail, actionCodeSettings, googleProvider } from '../firebase';
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signInWithPopup } from 'firebase/auth';
 import './Hero.css';
 import lwhplogo from '../assets/images/logo512.png';
 import lwhp1stimage from '../assets/images/hero-page-1st-image.PNG';
@@ -11,6 +14,9 @@ const slides = [lwhp1stimage, lwhp2ndimage, lwhp3rdimage, lwhp4thimage];
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -18,6 +24,21 @@ const Hero = () => {
     }, 7000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      if (event.data.type === 'AUTH_SUCCESS') {
+        navigate('/dashboard');
+      } else if (event.data.type === 'AUTH_ERROR') {
+        setError(event.data.error);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [navigate]);
 
   const handleDotClick = (index) => {
     setCurrentSlide(index);
@@ -31,6 +52,53 @@ const Hero = () => {
     }
   };
 
+  const handleSignInClick = () => {
+    navigate('/signin');
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      // Create a new Google provider instance for sign-up
+      const signUpProvider = new googleProvider.constructor();
+      signUpProvider.setCustomParameters({
+        prompt: 'select_account',
+        ux_mode: 'popup',
+        flow: 'signup'
+      });
+
+      // Open Google sign-in in a new tab
+      const signInWindow = window.open('', '_blank');
+      const result = await signInWithPopup(auth, signUpProvider);
+      
+      // If successful, close the popup and navigate to dashboard
+      if (result.user) {
+        signInWindow?.close();
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleEmailSignUp = async (e) => {
+    e.preventDefault();
+    try {
+      // Check if user exists
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      if (signInMethods.length > 0) {
+        setError('You are already signed up! Please sign in instead.');
+        return;
+      }
+
+      // Send sign-in link to email
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      localStorage.setItem('emailForSignIn', email);
+      setError('Check your email to complete your sign up!');
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   return (
     <section className='hero-container'>
       <div className='hero-left'>
@@ -39,15 +107,25 @@ const Hero = () => {
           <h1 className='hero-title'>Your ideas,<br/>amplified</h1>
           <p className='hero-subtitle'>Privacy-first AI that helps you create in confidence.</p>
           <div className='hero-auth-box'>
-            <button className='hero-google-btn'>
+            <button className='hero-google-btn' onClick={handleGoogleSignUp}>
               <img src={lwhpgoogleIcon} alt='Google icon' className='google-icon' />
-              Continue with Google
+              Sign Up with Google
             </button>
             <span className='hero-or'>or</span>
-            <input type='email' placeholder='Enter your personal or work email' className='hero-input' />
-            <button className='hero-email-btn'>Continue with email</button>
-            <p className='hero-disclaimer'>
-              By continuing, you agree to Anthropic's <span className='hero-link'>Consumer Terms</span> and <span className='hero-link'>Usage Policy</span>, and acknowledge our <span className='hero-link'>Privacy Policy</span>.
+            <form onSubmit={handleEmailSignUp}>
+              <input 
+                type='email' 
+                placeholder='Enter your personal or work email' 
+                className='hero-input'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button type='submit' className='hero-email-btn'>Sign Up with email</button>
+              {error && <p className='error-message'>{error}</p>}
+            </form>
+            <p className='hero-signin-link'>
+              or <span className='hero-link' onClick={handleSignInClick}>Sign In</span> if you're already a member.
             </p>
           </div>
         </div>
