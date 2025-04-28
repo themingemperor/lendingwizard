@@ -6,6 +6,8 @@ import HomePage from './Views/HomePage';
 import SignInPage from './Views/SignInPage';
 import Dashboard from './Auth/Dashboard';
 import GoogleCallback from './Auth/GoogleCallback';
+import PasswordSetup from './Views/PasswordSetup';
+import PasswordReset from './Views/PasswordReset';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -20,7 +22,8 @@ function App() {
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/signin" element={<SignInPage />} />
-                    <Route path="/auth/google/callback" element={<GoogleCallback />} />
+                    <Route path="/reset-password" element={<PasswordReset />} />
+                    <Route path="/password-setup" element={<PasswordSetup />} />
                     <Route 
                         path="/dashboard" 
                         element={

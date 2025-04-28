@@ -12,15 +12,22 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_APP_ID,
     measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
-
+//Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Initialize Firebase Authentication
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Configure Google provider
+googleProvider.setCustomParameters({
+    prompt: 'select_account'
+});
+
 // Configure email link settings
 const actionCodeSettings = {
-    url: window.location.origin,
+    url: `${window.location.origin}/password-setup`,
     handleCodeInApp: true,
 };
 

@@ -1,37 +1,40 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { getRedirectResult, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 
 const GoogleCallback = () => {
     const navigate = useNavigate();
-    const location = useLocation();
 
     useEffect(() => {
-        const handleGoogleCallback = async () => {
+        const handleRedirect = async () => {
             try {
-                // Get the authorization code from the URL
-                const params = new URLSearchParams(location.search);
-                const code = params.get('code');
-
-                if (code) {
-                    // Exchange the code for a credential
-                    const credential = GoogleAuthProvider.credential(null, code);
-                    await signInWithCredential(auth, credential);
+                const result = await getRedirectResult(auth);
+                if (result) {
+                    // User is successfully authenticated
+                    navigate('/dashboard');
+                } else {
+                    // Check if we have a credential in the URL
+                    const params = new URLSearchParams(window.location.search);
+                    const credential = GoogleAuthProvider.credentialFromURL(window.location.href);
                     
-                    // Close the popup window and redirect the main window
-                    window.opener.postMessage({ type: 'AUTH_SUCCESS' }, window.location.origin);
-                    window.close();
+                    if (credential) {
+                        // Sign in with the credential
+                        await signInWithCredential(auth, credential);
+                        navigate('/dashboard');
+                    } else {
+                        // No authentication result, redirect to home
+                        navigate('/');
+                    }
                 }
             } catch (error) {
                 console.error('Google authentication error:', error);
-                window.opener.postMessage({ type: 'AUTH_ERROR', error: error.message }, window.location.origin);
-                window.close();
+                navigate('/');
             }
         };
 
-        handleGoogleCallback();
-    }, [location]);
+        handleRedirect();
+    }, [navigate]);
 
     return (
         <div style={{ 

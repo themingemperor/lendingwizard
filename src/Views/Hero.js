@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, sendSignInLinkToEmail, actionCodeSettings, googleProvider } from '../firebase';
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signInWithPopup } from 'firebase/auth';
 import './Hero.css';
 import lwhplogo from '../assets/images/logo512.png';
 import lwhp1stimage from '../assets/images/hero-page-1st-image.PNG';
@@ -56,10 +56,25 @@ const Hero = () => {
     navigate('/signin');
   };
 
-  const handleGoogleSignUp = () => {
+  const handleGoogleSignUp = async () => {
     try {
-      const googleSignInUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.REACT_APP_GOOGLE_CLIENT_ID}&redirect_uri=${window.location.origin}/auth/google/callback&response_type=code&scope=email profile`;
-      window.open(googleSignInUrl, '_blank');
+      // Create a new Google provider instance for sign-up
+      const signUpProvider = new googleProvider.constructor();
+      signUpProvider.setCustomParameters({
+        prompt: 'select_account',
+        ux_mode: 'popup',
+        flow: 'signup'
+      });
+
+      // Open Google sign-in in a new tab
+      const signInWindow = window.open('', '_blank');
+      const result = await signInWithPopup(auth, signUpProvider);
+      
+      // If successful, close the popup and navigate to dashboard
+      if (result.user) {
+        signInWindow?.close();
+        navigate('/dashboard');
+      }
     } catch (error) {
       setError(error.message);
     }
@@ -68,9 +83,17 @@ const Hero = () => {
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     try {
-      const password = Math.random().toString(36).slice(-8);
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard');
+      // Check if user exists
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      if (signInMethods.length > 0) {
+        setError('You are already signed up! Please sign in instead.');
+        return;
+      }
+
+      // Send sign-in link to email
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      localStorage.setItem('emailForSignIn', email);
+      setError('Check your email to complete your sign up!');
     } catch (error) {
       setError(error.message);
     }
@@ -86,7 +109,7 @@ const Hero = () => {
           <div className='hero-auth-box'>
             <button className='hero-google-btn' onClick={handleGoogleSignUp}>
               <img src={lwhpgoogleIcon} alt='Google icon' className='google-icon' />
-              Continue with Google
+              Sign Up with Google
             </button>
             <span className='hero-or'>or</span>
             <form onSubmit={handleEmailSignUp}>
@@ -98,7 +121,7 @@ const Hero = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <button type='submit' className='hero-email-btn'>Continue with email</button>
+              <button type='submit' className='hero-email-btn'>Sign Up with email</button>
               {error && <p className='error-message'>{error}</p>}
             </form>
             <p className='hero-signin-link'>

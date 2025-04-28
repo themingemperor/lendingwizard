@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import PasswordInput from '../components/PasswordInput';
 import './SignInPage.css';
 import lwhplogo from '../assets/images/logo512.png';
 import lwhp1stimage from '../assets/images/hero-page-1st-image.PNG';
@@ -32,9 +33,23 @@ const SignInPage = () => {
 
     const handleGoogleSignIn = async () => {
         try {
-            const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            navigate('/dashboard');
+            // Create a new Google provider instance for sign-in
+            const signInProvider = new googleProvider.constructor();
+            signInProvider.setCustomParameters({
+                prompt: 'select_account',
+                ux_mode: 'popup',
+                flow: 'signin'
+            });
+
+            // Open Google sign-in in a new tab
+            const signInWindow = window.open('', '_blank');
+            const result = await signInWithPopup(auth, signInProvider);
+            
+            // If successful, close the popup and navigate to dashboard
+            if (result.user) {
+                signInWindow?.close();
+                navigate('/dashboard');
+            }
         } catch (error) {
             setError(error.message);
         }
@@ -58,7 +73,7 @@ const SignInPage = () => {
                     <h1 className='signin-title'>Welcome back</h1>
                     <p className='signin-subtitle'>Sign in to continue to your account</p>
                     <div className='signin-auth-box'>
-                        <button className='signin-google-btn' onClick={handleGoogleSignIn}>
+                        <button className='signin-google-btn auth-full-width' onClick={handleGoogleSignIn}>
                             <img src={lwhpgoogleIcon} alt='Google icon' className='google-icon' />
                             Continue with Google
                         </button>
@@ -67,21 +82,22 @@ const SignInPage = () => {
                             <input
                                 type='email'
                                 placeholder='Enter your email'
-                                className='signin-input'
+                                className='signin-input auth-full-width'
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                            <input
-                                type='password'
-                                placeholder='Enter your password'
-                                className='signin-input'
+                            <PasswordInput
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                required
+                                placeholder='Enter your password'
+                                className='auth-full-width'
                             />
+                            <div className="forgot-password-link">
+                                <a href="/reset-password">Forgot your password?</a>
+                            </div>
                             {error && <p className='error-message'>{error}</p>}
-                            <button type='submit' className='signin-email-btn'>
+                            <button type='submit' className='signin-email-btn auth-full-width'>
                                 Sign In with Email
                             </button>
                         </form>
