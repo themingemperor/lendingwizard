@@ -1,7 +1,7 @@
 // src/firebase.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, connectAuthEmulator } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -30,6 +30,12 @@ const actionCodeSettings = {
     url: `${window.location.origin}/password-setup`,
     handleCodeInApp: true,
 };
+
+// Connect to emulators if in development mode
+if (process.env.NODE_ENV === 'development') {
+    connectAuthEmulator(auth, 'http://localhost:9099');
+    connectFirestoreEmulator(db, 'localhost', 8081);
+}
 
 export { 
     db, 
