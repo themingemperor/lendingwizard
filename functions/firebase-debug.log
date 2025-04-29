@@ -1,0 +1,69 @@
+[debug] [2025-04-29T18:17:06.901Z] ----------------------------------------------------------------------
+[debug] [2025-04-29T18:17:06.904Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\micha\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js functions:shell
+[debug] [2025-04-29T18:17:06.904Z] CLI Version:   14.2.1
+[debug] [2025-04-29T18:17:06.904Z] Platform:      win32
+[debug] [2025-04-29T18:17:06.904Z] Node Version:  v22.15.0
+[debug] [2025-04-29T18:17:06.905Z] Time:          Tue Apr 29 2025 11:17:06 GMT-0700 (Pacific Daylight Time)
+[debug] [2025-04-29T18:17:06.905Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-29T18:17:07.104Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-29T18:17:07.104Z] > authorizing via signed-in user (malcolm2003.d1@gmail.com)
+[debug] [2025-04-29T18:17:07.104Z] [iam] checking project lendingwizard-9dc3e for permissions ["firebase.projects.get"]
+[debug] [2025-04-29T18:17:07.106Z] Checked if tokens are valid: true, expires at: 1745952653607
+[debug] [2025-04-29T18:17:07.106Z] Checked if tokens are valid: true, expires at: 1745952653607
+[debug] [2025-04-29T18:17:07.107Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lendingwizard-9dc3e:testIamPermissions [none]
+[debug] [2025-04-29T18:17:07.107Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lendingwizard-9dc3e:testIamPermissions x-goog-quota-user=projects/lendingwizard-9dc3e
+[debug] [2025-04-29T18:17:07.107Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lendingwizard-9dc3e:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-04-29T18:17:07.434Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/lendingwizard-9dc3e:testIamPermissions 200
+[debug] [2025-04-29T18:17:07.435Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lendingwizard-9dc3e:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-04-29T18:17:07.439Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-04-29T18:17:07.459Z] defaultcredentials: writing to file C:\Users\micha\AppData\Roaming\firebase\malcolm2003_d1_gmail.com_application_default_credentials.json
+[debug] [2025-04-29T18:17:07.461Z] DEBUG: Setting GAC to C:\Users\micha\AppData\Roaming\firebase\malcolm2003_d1_gmail.com_application_default_credentials.json
+[debug] [2025-04-29T18:17:07.461Z] Checked if tokens are valid: true, expires at: 1745952653607
+[debug] [2025-04-29T18:17:07.461Z] Checked if tokens are valid: true, expires at: 1745952653607
+[debug] [2025-04-29T18:17:07.461Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lendingwizard-9dc3e/adminSdkConfig [none]
+[debug] [2025-04-29T18:17:07.849Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lendingwizard-9dc3e/adminSdkConfig 200
+[debug] [2025-04-29T18:17:07.849Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lendingwizard-9dc3e/adminSdkConfig {"projectId":"lendingwizard-9dc3e","storageBucket":"lendingwizard-9dc3e.firebasestorage.app"}
+[debug] [2025-04-29T18:17:07.857Z] [functions] Watching "C:\LENDINGWIZARD\functions" for Cloud Functions...
+[debug] [2025-04-29T18:17:07.862Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2025-04-29T18:17:08.768Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "test": "mocha testfile.js --timeout 10000"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.1.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0",
+    "mocha": "^10.8.2",
+    "sinon": "^17.0.1"
+  },
+  "private": true
+}
+[debug] [2025-04-29T18:17:08.768Z] Building nodejs source
+[debug] [2025-04-29T18:17:08.769Z] Failed to find version of module node: reached end of search path C:\LENDINGWIZARD\functions\node_modules
+[warn] !  functions: Your requested "node" version "18" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-04-29T18:17:08.771Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-04-29T18:17:08.776Z] Found firebase-functions binary at 'C:\LENDINGWIZARD\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8620
+
+[debug] [2025-04-29T18:17:09.377Z] Got response from /__/functions.yaml {"endpoints":{"handleUserCreation":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"eventTrigger":{"eventType":"providers/firebase.auth/eventTypes/user.create","eventFilters":{"resource":"projects/lendingwizard-9dc3e"},"retry":false},"labels":{},"entryPoint":"handleUserCreation"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[debug] [2025-04-29T18:17:13.417Z] [functions] Loaded functions definitions from source: handleUserCreation.
+[debug] [2025-04-29T18:17:13.418Z] addAuthTrigger {"eventTrigger":{"eventType":"providers/firebase.auth/eventTypes/user.create","resource":"projects/lendingwizard-9dc3e"}}
+[debug] [2025-04-29T18:17:13.418Z] [functions[us-central1-handleUserCreation]] auth function initialized.
+[info] i  functions: Loaded functions: handleUserCreation 
+[warn] !  functions: The following emulators are not running, calls to these services will affect production: firestore, database, pubsub, storage, eventarc, tasks 

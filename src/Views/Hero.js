@@ -66,16 +66,14 @@ const Hero = () => {
         flow: 'signup'
       });
 
-      // Open Google sign-in in a new tab
-      const signInWindow = window.open('', '_blank');
+      // Use signInWithPopup directly without opening a new window
       const result = await signInWithPopup(auth, signUpProvider);
       
-      // If successful, close the popup and navigate to dashboard
       if (result.user) {
-        signInWindow?.close();
         navigate('/dashboard');
       }
     } catch (error) {
+      console.error('Google Sign Up Error:', error);
       setError(error.message);
     }
   };

@@ -24,29 +24,23 @@ admin.initializeApp();
 // Auth trigger for new user creation
 exports.handleUserCreation = functions.auth.user().onCreate(async (user) => {
   try {
+    console.log('Creating Firestore document for user:', user.uid);
+    
     // Store user data in Firestore
     await admin.firestore().collection('users').doc(user.uid).set({
       email: user.email,
+      displayName: user.displayName || null,
+      photoURL: user.photoURL || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       isActive: true,
-      lastLogin: admin.firestore.FieldValue.serverTimestamp()
+      lastLogin: admin.firestore.FieldValue.serverTimestamp(),
+      provider: user.providerData[0]?.providerId || 'google.com'
     });
 
-    // Send welcome email
-    const mailOptions = {
-      from: `Lending Wizard <${process.env.EMAIL_FROM}>`,
-      to: user.email,
-      subject: 'Welcome to Lending Wizard!',
-      text: `Welcome to Lending Wizard! Your account has been created successfully.`
-    };
-
-    // Note: You'll need to set up an email service (like SendGrid) to actually send emails
-    // This is just a placeholder for the email sending logic
-    // await sendEmail(mailOptions);
-
+    console.log('Successfully created Firestore document for user:', user.uid);
     return null;
   } catch (error) {
     console.error('Error in handleUserCreation:', error);
-    throw new functions.https.HttpsError('internal', 'Error creating user profile', error);
+    throw new Error('Error creating user profile');
   }
 });
