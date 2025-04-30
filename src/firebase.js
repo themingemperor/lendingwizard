@@ -121,6 +121,7 @@ export {
     db, 
     auth, 
     storage,
+    getFunctions,
     functions,
     googleProvider, 
     sendSignInLinkToEmail, 

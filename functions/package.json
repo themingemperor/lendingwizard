@@ -10,7 +10,7 @@
     "test": "mocha testfile.js --timeout 10000"
   },
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, orderBy, addDoc, getDocs, Timestamp, doc } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import './UserPrompts.css';
 
 const UserPrompts = ({ userEmail, userId }) => {
@@ -8,6 +9,11 @@ const UserPrompts = ({ userEmail, userId }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Initialize Firebase Functions
+  const functions = getFunctions();
+  const processPrompt = httpsCallable(functions, 'process_prompt');
 
   useEffect(() => {
     if (!userId) {
@@ -19,7 +25,6 @@ const UserPrompts = ({ userEmail, userId }) => {
     const fetchMessages = async () => {
       try {
         console.log('Fetching messages for user:', userId);
-        // Reference the nested prompts collection
         const userRef = doc(db, 'users', userId);
         const promptsRef = collection(userRef, 'prompts');
         const q = query(
@@ -54,32 +59,64 @@ const UserPrompts = ({ userEmail, userId }) => {
   }, [userId]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !userId) {
-      console.log('Invalid message or userId');
+    if (!inputMessage.trim() || !userId || isProcessing) {
       return;
     }
 
     try {
+      setIsProcessing(true);
       console.log('Sending message:', inputMessage);
-      const newMessage = {
+
+      // Save user message
+      const userMessage = {
         text: inputMessage,
         timestamp: Timestamp.now(),
-        userEmail: userEmail
+        userEmail: userEmail,
+        type: 'user'
       };
-      
-      console.log('Creating message document:', newMessage);
-      // Add to nested prompts collection
+
+      // Add user message to Firestore
       const userRef = doc(db, 'users', userId);
       const promptsRef = collection(userRef, 'prompts');
-      const docRef = await addDoc(promptsRef, newMessage);
-      console.log('Message added with ID:', docRef.id);
-      
-      setMessages(prevMessages => [...prevMessages, { ...newMessage, id: docRef.id }]);
+      await addDoc(promptsRef, userMessage);
+
+      // Add user message to state
+      setMessages(prevMessages => [...prevMessages, userMessage]);
       setInputMessage('');
+
+      // Call OpenAI through Firebase Function
+      console.log('Calling OpenAI process_prompt function with:', inputMessage);
+      const result = await processPrompt({ userprompt: inputMessage });
+      console.log('Raw OpenAI Response:', result);
+      
+      if (result.data.error) {
+        console.error('Error from OpenAI:', result.data.error);
+        throw new Error(result.data.error);
+      }
+
+      const aiResponse = result.data.result;
+      console.log('Processed OpenAI Response:', aiResponse);
+
+      // Save AI response
+      const aiMessage = {
+        text: aiResponse,
+        timestamp: Timestamp.now(),
+        userEmail: 'Veigar - The Lending Wizard',
+        type: 'ai'
+      };
+
+      // Add AI response to Firestore
+      await addDoc(promptsRef, aiMessage);
+
+      // Add AI response to state
+      setMessages(prevMessages => [...prevMessages, aiMessage]);
+      
       setError(null);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error in handleSendMessage:', error);
       setError(`Failed to send message: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -114,8 +151,16 @@ const UserPrompts = ({ userEmail, userId }) => {
           <div className="no-messages">No messages yet. Start a conversation!</div>
         ) : (
           messages.map((message) => (
-            <div key={message.id} className="message user">
-              <p>{message.text}</p>
+            <div 
+              key={message.id} 
+              className={`message ${message.type === 'ai' ? 'ai' : 'user'}`}
+            >
+              <div className="message-header">
+                <span className="sender">{message.type === 'ai' ? 'Veigar - The Lending Wizard' : 'You'}</span>
+              </div>
+              <div className="message-content">
+                <p>{message.text}</p>
+              </div>
               <span className="timestamp">
                 {message.timestamp?.toDate().toLocaleTimeString()}
               </span>
@@ -130,14 +175,14 @@ const UserPrompts = ({ userEmail, userId }) => {
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="Type your message here..."
           onKeyDown={handleKeyDown}
-          disabled={!userId}
+          disabled={!userId || isProcessing}
         />
         <button 
           onClick={handleSendMessage} 
           className="send-button"
-          disabled={!userId || !inputMessage.trim()}
+          disabled={!userId || !inputMessage.trim() || isProcessing}
         >
-          →
+          {isProcessing ? '...' : '→'}
         </button>
       </div>
     </div>

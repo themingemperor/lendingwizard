@@ -24,9 +24,19 @@
       }
     ]
   },
-  "functions": {
-    "source": "functions"
-  },
+  "functions": [
+    {
+      "source": "python_functions",
+      "codebase": "python_functions",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
   "emulators": {
     "auth": {
       "port": 9099
