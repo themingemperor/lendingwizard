@@ -32,22 +32,19 @@ client = OpenAI(api_key=openai_api_key)
 def process_prompt(req: https_fn.CallableRequest) -> dict:
     """Process user prompt using OpenAI API."""
     try:
-        # Get the user prompt from the request
-        user_prompt = req.data.get("userprompt")
+        # Get the conversation history from the request
+        conversation_history = req.data.get("messages")
         
-        if not user_prompt:
-            logging.error("No prompt provided")
-            return {"error": "No prompt provided"}
+        if not conversation_history or not isinstance(conversation_history, list):
+            logging.error("No valid message history provided")
+            return {"error": "No valid message history provided"}
         
-        logging.info(f"Received prompt: {user_prompt}")
+        logging.info(f"Received conversation history with {len(conversation_history)} messages")
         
         # Make the OpenAI API call
         completion = client.chat.completions.create(
             model="gpt-4.1-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": user_prompt}
-            ]
+            messages=conversation_history
         )
         
         # Get the response message

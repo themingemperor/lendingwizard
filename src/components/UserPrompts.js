@@ -86,7 +86,18 @@ const UserPrompts = ({ userEmail, userId }) => {
 
       // Call OpenAI through Firebase Function
       console.log('Calling OpenAI process_prompt function with:', inputMessage);
-      const result = await processPrompt({ userprompt: inputMessage });
+      
+      // Format the conversation history
+      const formattedMessages = [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        ...messages.map(msg => ({
+          role: msg.type === 'ai' ? 'assistant' : 'user',
+          content: msg.text
+        })),
+        { role: 'user', content: inputMessage }
+      ];
+      
+      const result = await processPrompt({ messages: formattedMessages });
       console.log('Raw OpenAI Response:', result);
       
       if (result.data.error) {
