@@ -3,22 +3,28 @@ import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import UserPrompts from '../components/UserPrompts';
+import { doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import UserChats from '../components/UserChats';
 import './Dashboard.css';
 import openIcon from '../assets/images/LWOpenIcon.png';
 import closeIcon from '../assets/images/LWCloseIcon.png';
+import renameIcon from '../assets/images/RenameIconLW.png';
+import deleteIcon from '../assets/images/DeleteIconLW.png';
 
 const Dashboard = () => {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
-    const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isChatHistoryCollapsed, setIsChatHistoryCollapsed] = useState(false);
     const [activeChat, setActiveChat] = useState(null);
     const [previousChats, setPreviousChats] = useState({});
     const currentMessagesRef = useRef([]);
+    const [isFirstLogin, setIsFirstLogin] = useState(true);
+    const [chatOptionsOpen, setChatOptionsOpen] = useState(null);
+    const [editingChatId, setEditingChatId] = useState(null);
+    const [editingChatTitle, setEditingChatTitle] = useState('');
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0 });
 
     useEffect(() => {
         if (!currentUser) return;
@@ -26,12 +32,11 @@ const Dashboard = () => {
         const fetchUserData = async () => {
             try {
                 setLoading(true);
-                const userProfileRef = doc(db, 'userProfile', currentUser.uid);
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userProfileRef = doc(userRef, 'userProfile', 'profile');
                 const userProfileDoc = await getDoc(userProfileRef);
                 
-                if (userProfileDoc.exists()) {
-                    setUserData(userProfileDoc.data());
-                } else {
+                if (!userProfileDoc.exists()) {
                     // Create new user profile if it doesn't exist
                     const newUserProfile = {
                         email: currentUser.email,
@@ -43,8 +48,39 @@ const Dashboard = () => {
                     };
                     
                     await setDoc(userProfileRef, newUserProfile);
-                    setUserData(newUserProfile);
                 }
+
+                // Fetch existing chats
+                const chatsRef = collection(userRef, 'chats');
+                const chatsSnapshot = await getDocs(chatsRef);
+                const chats = {};
+                chatsSnapshot.forEach(doc => {
+                    chats[doc.id] = doc.data();
+                });
+
+                // If there are no chats, create a new one
+                if (Object.keys(chats).length === 0) {
+                    const newChatRef = await addDoc(chatsRef, {
+                        createdAt: new Date(),
+                        title: 'New Chat',
+                        lastUpdated: new Date()
+                    });
+                    chats[newChatRef.id] = {
+                        createdAt: new Date(),
+                        title: 'New Chat',
+                        lastUpdated: new Date()
+                    };
+                    setActiveChat(newChatRef.id);
+                } else {
+                    // Set the most recent chat as active
+                    const mostRecentChat = Object.entries(chats).reduce((a, b) => 
+                        a[1].lastUpdated > b[1].lastUpdated ? a : b
+                    )[0];
+                    setActiveChat(mostRecentChat);
+                }
+
+                setPreviousChats(chats);
+                setIsFirstLogin(false);
             } catch (error) {
                 console.error('Error fetching user data:', error);
             } finally {
@@ -68,38 +104,115 @@ const Dashboard = () => {
         setIsChatHistoryCollapsed(!isChatHistoryCollapsed);
     };
 
-    const handleNewChat = () => {
-        // Save current chat if it has messages
-        if (activeChat && currentMessagesRef.current.length > 0) {
+    const handleNewChat = async () => {
+        try {
+            if (!currentUser) return;
+
+            // Create a new chat document
+            const userRef = doc(db, 'users', currentUser.uid);
+            const chatsRef = collection(userRef, 'chats');
+            const newChatRef = await addDoc(chatsRef, {
+                createdAt: new Date(),
+                title: 'New Chat',
+                lastUpdated: new Date()
+            });
+
+            // Set the new chat as active
+            setActiveChat(newChatRef.id);
             setPreviousChats(prev => ({
                 ...prev,
-                [activeChat]: [...currentMessagesRef.current]
+                [newChatRef.id]: {
+                    createdAt: new Date(),
+                    title: 'New Chat',
+                    lastUpdated: new Date()
+                }
             }));
+            setChatOptionsOpen(null);
+        } catch (error) {
+            console.error('Error creating new chat:', error);
         }
-        
-        // Generate new chat ID and clear messages
-        const newChatId = Date.now().toString();
-        currentMessagesRef.current = [];
-        setActiveChat(newChatId);
     };
 
     const handleSwitchChat = (chatId) => {
-        if (chatId === activeChat) return;
-
-        // Save current chat if it has messages
-        if (activeChat && currentMessagesRef.current.length > 0) {
-            setPreviousChats(prev => ({
-                ...prev,
-                [activeChat]: [...currentMessagesRef.current]
-            }));
-        }
-        
         setActiveChat(chatId);
+        setChatOptionsOpen(null);
     };
 
     const handleSaveMessages = (chatId, messages) => {
         if (!chatId) return;
         currentMessagesRef.current = [...messages];
+    };
+
+    const handleChatOptionsClick = (e, chatId) => {
+        e.stopPropagation();
+        const buttonRect = e.currentTarget.getBoundingClientRect();
+        setDropdownPosition({
+            top: buttonRect.top
+        });
+        setChatOptionsOpen(chatOptionsOpen === chatId ? null : chatId);
+    };
+
+    const startRenameChat = (e, chatId, currentTitle) => {
+        e.stopPropagation();
+        setEditingChatId(chatId);
+        setEditingChatTitle(currentTitle);
+        setChatOptionsOpen(null);
+    };
+
+    const handleRenameChat = async (e, chatId) => {
+        e.preventDefault();
+        if (!editingChatTitle.trim()) return;
+
+        try {
+            const userRef = doc(db, 'users', currentUser.uid);
+            const chatRef = doc(userRef, 'chats', chatId);
+            await updateDoc(chatRef, {
+                title: editingChatTitle,
+                lastUpdated: new Date()
+            });
+
+            setPreviousChats(prev => ({
+                ...prev,
+                [chatId]: {
+                    ...prev[chatId],
+                    title: editingChatTitle,
+                    lastUpdated: new Date()
+                }
+            }));
+
+            setEditingChatId(null);
+            setEditingChatTitle('');
+        } catch (error) {
+            console.error('Error renaming chat:', error);
+        }
+    };
+
+    const handleDeleteChat = async (e, chatId) => {
+        e.stopPropagation();
+        try {
+            const userRef = doc(db, 'users', currentUser.uid);
+            const chatRef = doc(userRef, 'chats', chatId);
+            await deleteDoc(chatRef);
+
+            setPreviousChats(prev => {
+                const newChats = { ...prev };
+                delete newChats[chatId];
+                return newChats;
+            });
+
+            if (activeChat === chatId) {
+                const remainingChats = Object.keys(previousChats).filter(id => id !== chatId);
+                if (remainingChats.length > 0) {
+                    setActiveChat(remainingChats[0]);
+                } else {
+                    setActiveChat(null);
+                }
+            }
+
+            setChatOptionsOpen(null);
+        } catch (error) {
+            console.error('Error deleting chat:', error);
+        }
     };
 
     if (loading) {
@@ -131,13 +244,55 @@ const Dashboard = () => {
                     New chat
                 </button>
                 <div className="previous-chats">
-                    {Object.entries(previousChats).map(([chatId, messages]) => (
+                    {Object.entries(previousChats).map(([chatId, chatData]) => (
                         <div 
                             key={chatId} 
                             className={`chat-history-item ${activeChat === chatId ? 'active' : ''}`}
                             onClick={() => handleSwitchChat(chatId)}
                         >
-                            {messages[0]?.text.substring(0, 30)}...
+                            {editingChatId === chatId ? (
+                                <form onSubmit={(e) => handleRenameChat(e, chatId)} className="rename-form">
+                                    <input
+                                        type="text"
+                                        value={editingChatTitle}
+                                        onChange={(e) => setEditingChatTitle(e.target.value)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        autoFocus
+                                        onBlur={(e) => handleRenameChat(e, chatId)}
+                                    />
+                                </form>
+                            ) : (
+                                <>
+                                    <span className="chat-title">{chatData.title}</span>
+                                    <button 
+                                        className="chat-options-button"
+                                        onClick={(e) => handleChatOptionsClick(e, chatId)}
+                                    >
+                                        <span className="dots">⋮</span>
+                                    </button>
+                                    {chatOptionsOpen === chatId && (
+                                        <div 
+                                            className="chat-options-dropdown"
+                                            style={{ top: dropdownPosition.top }}
+                                        >
+                                            <button 
+                                                onClick={(e) => startRenameChat(e, chatId, chatData.title)}
+                                                className="chat-option"
+                                            >
+                                                <img src={renameIcon} alt="Rename" className="option-icon" />
+                                                Rename
+                                            </button>
+                                            <button 
+                                                onClick={(e) => handleDeleteChat(e, chatId)}
+                                                className="chat-option"
+                                            >
+                                                <img src={deleteIcon} alt="Delete" className="option-icon" />
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -162,12 +317,12 @@ const Dashboard = () => {
 
                 <div className="main-content">
                     <div className={`chat-container ${isChatHistoryCollapsed ? 'expanded' : ''}`}>
-                        <UserPrompts 
+                        <UserChats 
                             userEmail={currentUser?.email} 
                             userId={currentUser?.uid} 
                             activeChat={activeChat}
                             onSaveMessages={handleSaveMessages}
-                            previousMessages={previousChats[activeChat]}
+                            previousMessages={currentMessagesRef.current}
                         />
                     </div>
                 </div>

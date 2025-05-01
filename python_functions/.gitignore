@@ -4,3 +4,7 @@ __pycache__/
 # Python virtual environment
 venv/
 *.local
+
+
+#OPENAI API KEY
+.env

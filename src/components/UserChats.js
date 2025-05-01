@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, query, orderBy, addDoc, getDocs, Timestamp, doc } from 'firebase/firestore';
+import { collection, query, orderBy, addDoc, getDocs, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import './UserPrompts.css';
+import './UserChats.css';
 
-const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMessages }) => {
+const UserChats = ({ userEmail, userId, activeChat, onSaveMessages, previousMessages }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState(activeChat);
 
   // Initialize Firebase Functions
   const functions = getFunctions();
@@ -22,33 +23,35 @@ const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMe
     setMessages(previousMessages || []);
     setInputMessage('');
     setError(null);
+    setCurrentChatId(activeChat);
   }, [activeChat, previousMessages]);
 
   // Save messages whenever they change
   useEffect(() => {
-    if (activeChat && messages !== previousMessages) {
-      onSaveMessages(activeChat, messages);
+    if (currentChatId && messages !== previousMessages) {
+      onSaveMessages(currentChatId, messages);
     }
-  }, [messages, activeChat, onSaveMessages, previousMessages]);
+  }, [messages, currentChatId, onSaveMessages, previousMessages]);
 
   // Remove initial message loading on component mount
   useEffect(() => {
     setLoading(false);
   }, []);
   useEffect(() => {
-    if (!userId) {
-      console.log('No userId provided');
+    if (!userId || !currentChatId) {
+      console.log('No userId or currentChatId provided');
       setLoading(false);
       return;
     }
 
     const fetchMessages = async () => {
       try {
-        console.log('Fetching messages for user:', userId);
+        console.log('Fetching messages for chat:', currentChatId);
         const userRef = doc(db, 'users', userId);
-        const promptsRef = collection(userRef, 'prompts');
+        const chatRef = doc(userRef, 'chats', currentChatId);
+        const messagesRef = collection(chatRef, 'messages');
         const q = query(
-          promptsRef,
+          messagesRef,
           orderBy('timestamp', 'asc')
         );
         
@@ -56,7 +59,7 @@ const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMe
         console.log('Query snapshot:', querySnapshot);
         
         if (querySnapshot.empty) {
-          console.log('No messages found for user');
+          console.log('No messages found for chat');
           setMessages([]);
         } else {
           const fetchedMessages = querySnapshot.docs.map(doc => ({
@@ -76,7 +79,7 @@ const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMe
     };
 
     fetchMessages();
-  }, [userId]);
+  }, [userId, currentChatId]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !userId || isProcessing) {
@@ -97,8 +100,28 @@ const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMe
 
       // Add user message to Firestore
       const userRef = doc(db, 'users', userId);
-      const promptsRef = collection(userRef, 'prompts');
-      await addDoc(promptsRef, userMessage);
+      let chatRef;
+      let messagesRef;
+
+      if (!currentChatId) {
+        // Create a new chat if none exists
+        const chatsRef = collection(userRef, 'chats');
+        const newChatRef = await addDoc(chatsRef, {
+          createdAt: new Date(),
+          title: inputMessage, // Set title to the first question
+          lastUpdated: new Date()
+        });
+        chatRef = newChatRef;
+        messagesRef = collection(newChatRef, 'messages');
+        setCurrentChatId(newChatRef.id);
+        onSaveMessages(newChatRef.id, []);
+      } else {
+        chatRef = doc(userRef, 'chats', currentChatId);
+        messagesRef = collection(chatRef, 'messages');
+      }
+
+      // Add user message to Firestore
+      await addDoc(messagesRef, userMessage);
 
       // Add user message to state
       setMessages(prevMessages => [...prevMessages, userMessage]);
@@ -137,14 +160,14 @@ const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMe
       };
 
       // Add AI response to Firestore
-      await addDoc(promptsRef, aiMessage);
+      await addDoc(messagesRef, aiMessage);
 
       // Add AI response to state
       setMessages(prevMessages => [...prevMessages, aiMessage]);
       
       setError(null);
     } catch (error) {
-      console.error('Error in handleSendMessage:', error);
+      console.error('Error sending message:', error);
       setError(`Failed to send message: ${error.message}`);
     } finally {
       setIsProcessing(false);
@@ -220,4 +243,4 @@ const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMe
   );
 };
 
-export default UserPrompts; 
+export default UserChats; 
