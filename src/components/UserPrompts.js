@@ -4,10 +4,10 @@ import { collection, query, orderBy, addDoc, getDocs, Timestamp, doc } from 'fir
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import './UserPrompts.css';
 
-const UserPrompts = ({ userEmail, userId }) => {
+const UserPrompts = ({ userEmail, userId, activeChat, onSaveMessages, previousMessages }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -15,6 +15,26 @@ const UserPrompts = ({ userEmail, userId }) => {
   const functions = getFunctions();
   const processPrompt = httpsCallable(functions, 'process_prompt');
 
+  // Handle chat changes (new chat or loading previous chat)
+  useEffect(() => {
+    if (!activeChat) return;
+    
+    setMessages(previousMessages || []);
+    setInputMessage('');
+    setError(null);
+  }, [activeChat, previousMessages]);
+
+  // Save messages whenever they change
+  useEffect(() => {
+    if (activeChat && messages !== previousMessages) {
+      onSaveMessages(activeChat, messages);
+    }
+  }, [messages, activeChat, onSaveMessages, previousMessages]);
+
+  // Remove initial message loading on component mount
+  useEffect(() => {
+    setLoading(false);
+  }, []);
   useEffect(() => {
     if (!userId) {
       console.log('No userId provided');

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
@@ -16,6 +16,9 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isChatHistoryCollapsed, setIsChatHistoryCollapsed] = useState(false);
+    const [activeChat, setActiveChat] = useState(null);
+    const [previousChats, setPreviousChats] = useState({});
+    const currentMessagesRef = useRef([]);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -65,6 +68,40 @@ const Dashboard = () => {
         setIsChatHistoryCollapsed(!isChatHistoryCollapsed);
     };
 
+    const handleNewChat = () => {
+        // Save current chat if it has messages
+        if (activeChat && currentMessagesRef.current.length > 0) {
+            setPreviousChats(prev => ({
+                ...prev,
+                [activeChat]: [...currentMessagesRef.current]
+            }));
+        }
+        
+        // Generate new chat ID and clear messages
+        const newChatId = Date.now().toString();
+        currentMessagesRef.current = [];
+        setActiveChat(newChatId);
+    };
+
+    const handleSwitchChat = (chatId) => {
+        if (chatId === activeChat) return;
+
+        // Save current chat if it has messages
+        if (activeChat && currentMessagesRef.current.length > 0) {
+            setPreviousChats(prev => ({
+                ...prev,
+                [activeChat]: [...currentMessagesRef.current]
+            }));
+        }
+        
+        setActiveChat(chatId);
+    };
+
+    const handleSaveMessages = (chatId, messages) => {
+        if (!chatId) return;
+        currentMessagesRef.current = [...messages];
+    };
+
     if (loading) {
         return (
             <div className="dashboard-container">
@@ -89,7 +126,21 @@ const Dashboard = () => {
                         alt={isChatHistoryCollapsed ? "Open chat history" : "Close chat history"}
                     />
                 </button>
-                {/* Chat history list will be implemented here */}
+                <button className="new-chat-button" onClick={handleNewChat}>
+                    <span className="plus-icon">+</span>
+                    New chat
+                </button>
+                <div className="previous-chats">
+                    {Object.entries(previousChats).map(([chatId, messages]) => (
+                        <div 
+                            key={chatId} 
+                            className={`chat-history-item ${activeChat === chatId ? 'active' : ''}`}
+                            onClick={() => handleSwitchChat(chatId)}
+                        >
+                            {messages[0]?.text.substring(0, 30)}...
+                        </div>
+                    ))}
+                </div>
             </div>
             
             <div className="dashboard-container">
@@ -111,7 +162,13 @@ const Dashboard = () => {
 
                 <div className="main-content">
                     <div className={`chat-container ${isChatHistoryCollapsed ? 'expanded' : ''}`}>
-                        <UserPrompts userEmail={currentUser?.email} userId={currentUser?.uid} />
+                        <UserPrompts 
+                            userEmail={currentUser?.email} 
+                            userId={currentUser?.uid} 
+                            activeChat={activeChat}
+                            onSaveMessages={handleSaveMessages}
+                            previousMessages={previousChats[activeChat]}
+                        />
                     </div>
                 </div>
             </div>
