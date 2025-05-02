@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow access to users collection and its nested documents
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow access to nested chats collection
+      match /chats/{chatId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        
+        // Allow access to nested messages collection within each chat
+        match /messages/{messageId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+
+      // Allow access to nested userProfile
+      match /userProfile/{profileId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

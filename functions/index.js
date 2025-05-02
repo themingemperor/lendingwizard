@@ -13,40 +13,39 @@ const admin = require('firebase-admin');
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
-
-// exports.helloWorld = onRequest((request, response) => {
-//    logger.info("Hello logs!", {structuredData: true});
-//    response.send("Hello from Firebase!");
-//  });
+// Basic HTTP function
+exports.helloWorld = functions.https.onRequest((request, response) => {
+  response.send("Hello from Firebase!");
+});
 
 // Auth trigger for new user creation
 exports.handleUserCreation = functions.auth.user().onCreate(async (user) => {
   try {
-    // Store user data in Firestore
-    await admin.firestore().collection('users').doc(user.uid).set({
-      email: user.email,
+    if (!user || !user.uid) {
+      throw new Error('Invalid user data received');
+    }
+
+    console.log('Creating Firestore document for user:', user.uid);
+    
+    const userData = {
+      email: user.email || null,
+      displayName: user.displayName || null,
+      photoURL: user.photoURL || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       isActive: true,
-      lastLogin: admin.firestore.FieldValue.serverTimestamp()
-    });
-
-    // Send welcome email
-    const mailOptions = {
-      from: `Lending Wizard <${process.env.EMAIL_FROM}>`,
-      to: user.email,
-      subject: 'Welcome to Lending Wizard!',
-      text: `Welcome to Lending Wizard! Your account has been created successfully.`
+      lastLogin: admin.firestore.FieldValue.serverTimestamp(),
+      provider: user.providerData && user.providerData.length > 0 
+        ? user.providerData[0].providerId 
+        : 'google.com'
     };
 
-    // Note: You'll need to set up an email service (like SendGrid) to actually send emails
-    // This is just a placeholder for the email sending logic
-    // await sendEmail(mailOptions);
+    // Store user data in Firestore
+    await admin.firestore().collection('users').doc(user.uid).set(userData);
 
+    console.log('Successfully created Firestore document for user:', user.uid);
     return null;
   } catch (error) {
     console.error('Error in handleUserCreation:', error);
-    throw new functions.https.HttpsError('internal', 'Error creating user profile', error);
+    throw new Error('Error creating user profile: ' + error.message);
   }
 });

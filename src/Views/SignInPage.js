@@ -33,21 +33,8 @@ const SignInPage = () => {
 
     const handleGoogleSignIn = async () => {
         try {
-            // Create a new Google provider instance for sign-in
-            const signInProvider = new googleProvider.constructor();
-            signInProvider.setCustomParameters({
-                prompt: 'select_account',
-                ux_mode: 'popup',
-                flow: 'signin'
-            });
-
-            // Open Google sign-in in a new tab
-            const signInWindow = window.open('', '_blank');
-            const result = await signInWithPopup(auth, signInProvider);
-            
-            // If successful, close the popup and navigate to dashboard
+            const result = await signInWithPopup(auth, googleProvider);
             if (result.user) {
-                signInWindow?.close();
                 navigate('/dashboard');
             }
         } catch (error) {

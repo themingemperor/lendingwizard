@@ -10,12 +10,12 @@
     "test": "mocha testfile.js --timeout 10000"
   },
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {
     "firebase-admin": "^12.6.0",
-    "firebase-functions": "^4.5.0"
+    "firebase-functions": "^5.1.1"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.1.0",
